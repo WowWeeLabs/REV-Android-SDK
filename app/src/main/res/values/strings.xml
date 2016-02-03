@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">RevSampleProject</string>
+    <string name="scanning">Scanning for REV</string>
+    <string name="lost_title">You lose</string>
+    <string name="lost_button">Revive</string>
+    <string name="dead">Dead</string>
+    <string name="health">Health:</string>
+
+    <string-array name="gun_array">
+        <item>Gun A</item>
+        <item>Gun B</item>
+    </string-array>
+
+    <string-array name="tracking_mode_array">
+        <item>User Control</item>
+        <item>Chase</item>
+        <item>Turret</item>
+        <item>Avoid</item>
+        <item>Beacon</item>
+        <item>Jumper</item>
+    </string-array>
+</resources>

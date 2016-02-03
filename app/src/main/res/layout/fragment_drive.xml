@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drive_view_main_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent" >
+	
+    <SurfaceView
+        android:id="@+id/view_id_touch_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--<FrameLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_marginBottom="15dp"-->
+        <!--android:layout_marginEnd="20dp" -->
+        <!--android:layout_marginStart="20dp">-->
+
+        <!--<FrameLayout-->
+            <!--android:id="@+id/layoutrevshootbutton"-->
+            <!--android:layout_width="122dp"-->
+            <!--android:layout_height="122dp"-->
+            <!--android:layout_gravity="bottom|end" >-->
+
+            <!--<com.wowwee.rev.utils.RevShootButton-->
+                <!--android:id="@+id/imageViewRevShootButton"-->
+                <!--android:layout_width="122dp"-->
+                <!--android:layout_height="122dp"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:background="@drawable/btn_shoot_heavymachinegun_off" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularview"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal|center_vertical" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularviewReloadBar"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal|center_vertical"-->
+                <!--android:visibility="invisible" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewshootcharge"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal|center_vertical"-->
+                <!--android:src="@drawable/btn_shoot_charge_on" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewtop"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal|top"-->
+                <!--android:src="@drawable/drive_fireweaponarrow_down" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewleft"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|start"-->
+                <!--android:src="@drawable/drive_fireweaponarrow_r" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewright"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|end"-->
+                <!--android:src="@drawable/drive_fireweaponarrow_l" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewbottom"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal|bottom"-->
+                <!--android:src="@drawable/drive_fireweaponarrow_up" />-->
+        <!--</FrameLayout>-->
+
+		<!--<FrameLayout-->
+		    <!--android:id="@+id/layoutrevshootbuttons1"-->
+		    <!--android:layout_width="wrap_content"-->
+		    <!--android:layout_height="wrap_content"-->
+		    <!--android:layout_gravity="end|bottom"-->
+		    <!--android:layout_marginBottom="130dp" >-->
+
+            <!--<com.wowwee.rev.utils.RevSpecialButton-->
+                <!--android:id="@+id/imageViewRevSpecialButtons1"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:maxHeight="90dp"-->
+                <!--android:maxWidth="90dp"-->
+                <!--android:minHeight="30dp"-->
+                <!--android:minWidth="30dp"-->
+                <!--android:src="@drawable/btn_special_emp_170" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularviews1"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularviewReloadBars1"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:visibility="invisible" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewshootcharges1"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:maxHeight="90dp"-->
+                <!--android:maxWidth="90dp"-->
+                <!--android:scaleType="fitCenter"-->
+                <!--android:src="@drawable/specialweaponcounter_0" />-->
+
+        <!--</FrameLayout>-->
+         <!-- -->
+		<!--<FrameLayout-->
+		    <!--android:id="@+id/layoutrevshootbuttons2"-->
+		    <!--android:layout_width="wrap_content"-->
+		    <!--android:layout_height="wrap_content"-->
+		    <!--android:layout_gravity="end|bottom"-->
+		    <!--android:layout_marginBottom="105dp"-->
+		    <!--android:layout_marginEnd="90dp" >-->
+
+            <!--<com.wowwee.rev.utils.RevSpecialButton-->
+                <!--android:id="@+id/imageViewRevSpecialButtons2"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:maxHeight="90dp"-->
+                <!--android:maxWidth="90dp"-->
+                <!--android:src="@drawable/btn_special_emp_170" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularviews2"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularviewReloadBars2"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:visibility="invisible" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewshootcharges2"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:maxHeight="90dp"-->
+                <!--android:maxWidth="90dp"-->
+                <!--android:src="@drawable/specialweaponcounter_0" />-->
+
+        <!--</FrameLayout>-->
+         <!-- -->
+		<!--<FrameLayout-->
+		    <!--android:id="@+id/layoutrevshootbuttons3"-->
+		    <!--android:layout_width="wrap_content"-->
+		    <!--android:layout_height="wrap_content"-->
+		    <!--android:layout_gravity="end|bottom"-->
+		    <!--android:layout_marginBottom="20dp"-->
+		    <!--android:layout_marginEnd="130dp" >-->
+
+            <!--<com.wowwee.rev.utils.RevSpecialButton-->
+                <!--android:id="@+id/imageViewRevSpecialButtons3"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:maxHeight="90dp"-->
+                <!--android:maxWidth="90dp"-->
+                <!--android:src="@drawable/btn_special_emp_170" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularviews3"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal" />-->
+
+            <!--<com.wowwee.rev.utils.CircularProgressView-->
+                <!--android:id="@+id/circularviewReloadBars3"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:visibility="invisible" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/imageViewshootcharges3"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:maxHeight="90dp"-->
+                <!--android:maxWidth="90dp"-->
+                <!--android:src="@drawable/specialweaponcounter_0" />-->
+
+        <!--</FrameLayout>-->
+    <!--</FrameLayout>-->
+
+	<!--<com.wowwee.rev.utils.REVJoystick-->
+	    <!--android:id="@+id/layoutjoystick"-->
+	    <!--android:layout_width="225dp"-->
+	    <!--android:layout_height="225dp"-->
+	    <!--android:layout_marginStart="0dp"-->
+	    <!--android:layout_marginTop="0dp"-->
+	    <!--android:tag="ignore_scaling"-->
+	    <!--android:visibility="invisible" >-->
+
+			<!--<com.wowwee.rev.utils.ImageCircularProgressView-->
+			    <!--android:id="@+id/joystickOuterRing"-->
+			    <!--android:layout_width="225dp"-->
+			    <!--android:layout_height="225dp"-->
+			    <!--android:background="@drawable/drive_outer_ring" />-->
+
+			<!--<com.wowwee.rev.utils.ImageCircularProgressView-->
+			    <!--android:id="@+id/joystickOuterGearRing"-->
+				<!--android:layout_width="225dp"-->
+			    <!--android:layout_height="225dp"-->
+			    <!--android:background="@drawable/drive_outer_gear_ring" />-->
+			<!--<com.wowwee.rev.utils.ImageCircularProgressView-->
+			    <!--android:id="@+id/joystickMiddleRing"-->
+				<!--android:layout_width="225dp"-->
+			    <!--android:layout_height="225dp"-->
+			    <!--android:background="@drawable/drive_middle_ring" />-->
+
+			<!--<com.wowwee.rev.utils.ImageCircularProgressView-->
+			    <!--android:id="@+id/joystickCoreRing"-->
+			    <!--android:layout_width="225dp"-->
+			    <!--android:layout_height="225dp"-->
+			    <!--android:background="@drawable/drive_core_ring" />-->
+
+	<!--</com.wowwee.rev.utils.REVJoystick>-->
+
+	<com.wowwee.revandroidsampleproject.utils.JoystickView
+	    android:id="@+id/layoutleftJoystick"
+	    android:layout_width="225dp"
+	    android:layout_height="225dp"
+	    android:layout_marginStart="0dp"
+	    android:layout_marginTop="0dp"
+	    android:tag="ignore_scaling" >
+
+			<ImageView
+			    android:id="@+id/joystickBaseL"
+			    android:layout_width="225dp"
+			    android:layout_height="225dp"
+			    android:background="@drawable/drive_ring_dual" />
+			<ImageView
+			    android:id="@+id/joystickL"
+			    android:layout_width="68dp"
+			    android:layout_height="68dp"
+			    android:background="@drawable/drive_dual_fb" />
+	</com.wowwee.revandroidsampleproject.utils.JoystickView>
+
+	<com.wowwee.revandroidsampleproject.utils.JoystickView
+	    android:id="@+id/layoutrightJoystick"
+	    android:layout_width="225dp"
+	    android:layout_height="225dp"
+	    android:layout_marginStart="0dp"
+	    android:layout_marginTop="0dp"
+        android:layout_alignParentEnd="true"
+	    android:tag="ignore_scaling" >
+
+			<ImageView
+			    android:id="@+id/joystickBaseR"
+			    android:layout_width="225dp"
+			    android:layout_height="225dp"
+			    android:background="@drawable/drive_ring_dual" />
+			<ImageView
+			    android:id="@+id/joystickR"
+			    android:layout_width="68dp"
+			    android:layout_height="68dp"
+			    android:background="@drawable/drive_dual_lr" />
+	</com.wowwee.revandroidsampleproject.utils.JoystickView>
+
+    <TextView
+        android:id="@+id/tvHealth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="@string/health"/>
+
+    <Button
+        android:id="@+id/btnFire"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="20dp"
+        android:text="Fire"/>
+
+    <Spinner
+        android:id="@+id/spTrackingMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp" />
+
+    <Spinner
+        android:id="@+id/spGun"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/spTrackingMode"
+        android:layout_marginBottom="5dp" />
+
+	<FrameLayout
+	    android:id="@+id/layoutoverlay"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent" />
+
+	<!--<include-->
+	    <!--android:id="@+id/tutorial_leftjoystick"-->
+	    <!--layout="@layout/fragment_tutorial_single_leftjoystick"-->
+	    <!--android:visibility="invisible" />-->
+	<!--<include-->
+	    <!--android:id="@+id/tutorial_rightjoystick"-->
+	    <!--layout="@layout/fragment_tutorial_single_rightjoystick"-->
+	    <!--android:visibility="invisible" />-->
+	<!--<include-->
+	    <!--android:id="@+id/tutorial_dualjoystick"-->
+	    <!--layout="@layout/fragment_tutorial_dual_joystick"-->
+	    <!--android:visibility="invisible" />-->
+	<!--<include-->
+	    <!--android:id="@+id/tutorial_ramp"-->
+	    <!--layout="@layout/fragment_tutorial_ramp"-->
+	    <!--android:visibility="invisible" />	-->
+	
+</RelativeLayout>
