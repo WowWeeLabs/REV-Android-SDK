@@ -23,6 +23,7 @@ import com.wowwee.revandroidsampleproject.R;
 import com.wowwee.revandroidsampleproject.fragments.BaseViewFragment;
 import com.wowwee.revandroidsampleproject.fragments.DriveViewFragment;
 import com.wowwee.revandroidsampleproject.fragments.FragmentHelper;
+import com.wowwee.revandroidsampleproject.utils.REVPlayer;
 
 import java.util.List;
 import java.util.Timer;
@@ -92,7 +93,6 @@ public class ScanFragment extends BaseViewFragment {
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         REVRobotFinder.getInstance().clearFoundREVList();
@@ -101,14 +101,12 @@ public class ScanFragment extends BaseViewFragment {
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         scanLeDevice(true);
@@ -308,6 +306,9 @@ public class ScanFragment extends BaseViewFragment {
 
         // REV connected
         closestRev = null;
+
+        // Set player rev
+        REVPlayer.getInstance().setPlayerRev(rev);
 
         // Set connection state
         if (getFragmentActivity() != null) {

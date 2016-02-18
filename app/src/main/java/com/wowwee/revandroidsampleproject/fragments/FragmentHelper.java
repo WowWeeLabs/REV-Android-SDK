@@ -41,4 +41,16 @@ public class FragmentHelper {
 		transaction.replace(containViewId, fragment, ""+backStackIndex);
 		transaction.commitAllowingStateLoss();
 	}
+
+	public static void removeFragment(FragmentManager fragmentManager, int containViewId) {
+		if(fragmentManager != null) {
+			Fragment fragment = fragmentManager.findFragmentById(containViewId);
+			if (fragment != null) {
+				fragments.remove(fragment);
+				FragmentTransaction transaction = fragmentManager.beginTransaction();
+				transaction.remove(fragment);
+				transaction.commitAllowingStateLoss();
+			}
+		}
+	}
 }

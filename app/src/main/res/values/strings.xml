@@ -1,10 +1,18 @@
 <resources>
     <string name="app_name">RevSampleProject</string>
     <string name="scanning">Scanning for REV</string>
+    <string name="win_title">You win</string>
     <string name="lost_title">You lose</string>
-    <string name="lost_button">Revive</string>
+    <string name="lost_button">Again</string>
     <string name="dead">Dead</string>
     <string name="health">Health:</string>
+    <string name="ai">AI</string>
+    <string name="fire">Fire</string>
+
+    <string name="close">Close</string>
+    <string name="confirm">Confirm</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
 
     <string-array name="gun_array">
         <item>Gun A</item>

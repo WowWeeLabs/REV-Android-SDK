@@ -12,6 +12,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -33,18 +34,26 @@ import com.wowwee.bluetoothrobotcontrollib.rev.REVRobotConstant;
 import com.wowwee.bluetoothrobotcontrollib.rev.REVRobotConstant.revRobotTrackingMode;
 import com.wowwee.bluetoothrobotcontrollib.rev.REVRobotFinder;
 
+import java.util.List;
 import java.util.Timer;
 
+import com.wowwee.revandroidsampleproject.ai.AIPlayer;
+import com.wowwee.revandroidsampleproject.ai.AIPlayerManager;
 import com.wowwee.revandroidsampleproject.data.JoystickData;
 import com.wowwee.revandroidsampleproject.data.JoystickData.TYPE;
 import com.wowwee.revandroidsampleproject.drawer.JoystickDrawer;
 import com.wowwee.revandroidsampleproject.utils.JoystickView;
 import com.wowwee.revandroidsampleproject.R;
 import com.wowwee.revandroidsampleproject.utils.Player;
+import com.wowwee.revandroidsampleproject.utils.REVPlayer;
 import com.wowwee.revandroidsampleproject.weapon.WeaponManager;
+import com.wowwee.revandroidsampleproject.fragments.RevConnectAIFragment.SelectAICar;
+import com.wowwee.revandroidsampleproject.fragments.RevAIPlayerFragment.RevAIPlayerFragmentListener;
+import com.wowwee.revandroidsampleproject.fragments.RevConnectAIFragment.RevConnectAICallback;
+import com.wowwee.revandroidsampleproject.fragments.RevConnectAIFragment.REVConnectAIFragmentListener;
 
 @SuppressLint("ValidFragment")
-public class DriveViewFragment extends BaseViewFragment implements OnTouchListener {
+public class DriveViewFragment extends BaseViewFragment implements OnTouchListener, REVConnectAIFragmentListener, RevConnectAICallback, RevAIPlayerFragmentListener {
 	public final static String BROADCAST_REVIVE = "com.revsampleproject.revive";
 
 	protected SurfaceView touchArea;
@@ -82,7 +91,12 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 
 	private View view;
 
+	private REVRobot revInControl;
+	private Handler handler;
+
 	private TextView tvHealth;
+	private TextView tvAiHealth;
+	private Button btnAI;
 	private Button btnFire;
 	private Spinner spTrackingMode;
 	private Spinner spGun;
@@ -92,6 +106,9 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 	private final float DEFAULT_DRIVE_SPEED = 1.0f;
 	private final float DEFAULT_TURN_SPEED = 1.0f;
 	private final float DEFAULT_DRAW_RATIO = 2.0f;
+
+	private final int DELAY_HALF_SECOND = 500;
+	private final int DELAY_ONE_SECOND = 1000;
 
 	public DriveViewFragment() {
 		super(R.layout.fragment_drive);
@@ -161,6 +178,10 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 	public void onResume() {
 		super.onResume();
 
+		// Set car states
+		resumeDriveViewFragment();
+
+		// Start read the movement value
 		if(!isJoystickTimerRunning) {
 			Thread newThread = new Thread(new JoystickRunnable());
 			newThread.start();
@@ -168,10 +189,11 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 		}
 
 		if(REVRobotFinder.getInstance().firstConnectedREV() != null) {
+			// Set tracking mode for player REV
 			REVRobotFinder.getInstance().firstConnectedREV().revSetTrackingMode(revRobotTrackingMode.REVTrackingUserControl);
 			setDriveEnabled(true);
-		}
-		else {
+		} else {
+			// Back to scan page if the REV is disconnected
 			FragmentHelper.switchFragment(getFragmentActivity().getSupportFragmentManager(), new ScanFragment(), R.id.view_id_content, false);
 		}
 	}
@@ -187,6 +209,11 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 
 		// Init weapon manager
 		WeaponManager.getInstance().Load(getFragmentActivity());
+
+		// Init AIPlayerManager
+		AIPlayerManager.createInstance(getFragmentActivity());
+
+		handler = new Handler();
 
 		view = super.onCreateView(inflater, container, savedInstanceState);
 
@@ -227,6 +254,7 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 		newThread.start();
 		isJoystickTimerRunning = true;
 
+		// Define joystick view
 		this.joystickLeft = (JoystickView)view.findViewById(R.id.layoutleftJoystick);
 		this.joystickLeft.UpdateLeftView();
 		this.joystickLeft.setVisibility(View.INVISIBLE);
@@ -237,6 +265,25 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 		// Define health text
 		tvHealth = (TextView)view.findViewById(R.id.tvHealth);
 		tvHealth.setText(getString(R.string.health) + " " + rev.health);
+
+		tvAiHealth = (TextView)view.findViewById(R.id.tvAiHealth);
+
+		// Define AI button
+		btnAI = (Button)view.findViewById(R.id.btn_ai);
+		btnAI.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				// Pause all AI car
+				Player.getInstance().setAiEnable(false);
+				setViewTouchable(false);
+				RevConnectAIFragment connectAIFragment = new RevConnectAIFragment();
+				connectAIFragment.setRevConnectAICallback(DriveViewFragment.this);
+				connectAIFragment.setRevConnectAIFragmentListener(DriveViewFragment.this);
+				FragmentHelper.switchFragment(getFragmentActivity().getSupportFragmentManager(), connectAIFragment, R.id.view_id_sub_overlay2, false);
+				// Hide game page layout
+				getActivity().findViewById(R.id.view_id_content).setVisibility(View.INVISIBLE);
+			}
+		});
 
 		// Define shoot button
 		btnFire = (Button)view.findViewById(R.id.btnFire);
@@ -317,7 +364,156 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 		// Set led to blue color when game start
 		rev.revSetRGBLed(REVRobotConstant.revRobotColor.REVRobotColorBlue);
 
+		// Set car states
+		resumeDriveViewFragment();
+
 		return view;
+	}
+
+	private void resumeDriveViewFragment() {
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				revInControl = REVPlayer.getInstance().getPlayerRev();
+				if (revInControl != null)
+					revInControl.setCallbackInterface(DriveViewFragment.this);
+
+				// By default set all car to Idle
+				for (final REVRobot r : REVRobotFinder.getInstance().getmRevRobotConnectedList()) {
+					// If this is the control car
+					if (r == revInControl) {
+						// If no AI car connected
+						if (REVRobotFinder.getInstance().getmRevRobotConnectedList().size() == 1) {
+							// Set REV state
+							handler.postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									Log.d("AIState", "set revInControl to REVTrackingUserControl");
+									if (r != null)
+										r.revSetTrackingMode(revRobotTrackingMode.REVTrackingUserControl);
+									handler.postDelayed(new Runnable() {
+										@Override
+										public void run() {
+											if (r != null)
+												r.revGetTrackingMode();
+										}
+									}, DELAY_HALF_SECOND);
+								}
+							}, DELAY_ONE_SECOND);
+						}
+						// If there is AI car connected
+						else {
+							// Set REV state
+							handler.postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									if (r != null)
+										r.revSetTrackingMode(revRobotTrackingMode.REVTrackingBeacon);
+									handler.postDelayed(new Runnable() {
+										@Override
+										public void run() {
+											if (r != null)
+												r.revGetTrackingMode();
+										}
+									}, DELAY_HALF_SECOND);
+								}
+							}, DELAY_ONE_SECOND);
+						}
+					}
+					r.revSetTrackingSensorStatus(false);
+				}
+
+				// Refresh all car AI
+				refreshAllCarAI();
+			}
+		}, DELAY_ONE_SECOND);
+	}
+
+	public void setViewTouchable(boolean isTouchable) {
+		if (isTouchable) {
+			touchArea.setEnabled(true);
+		} else {
+			touchArea.setEnabled(false);
+		}
+	}
+
+	private void refreshAllCarAI() {
+		// Enable AI car
+		for(REVRobot r : REVRobotFinder.getInstance().getmRevRobotConnectedList()) {
+			if(r != revInControl) {
+				AIPlayer.setRev(r);
+				Player.getInstance().setAiEnable(true);
+			}
+		}
+		// Show AI health
+		getFragmentActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if(REVRobotFinder.getInstance().getmRevRobotConnectedList().size() > 1 && AIPlayer.getRev() != null && tvAiHealth != null) {
+					tvAiHealth.setText(getString(R.string.health) + " " + AIPlayer.getRev().health);
+					tvAiHealth.setVisibility(View.VISIBLE);
+				} else {
+					tvAiHealth.setVisibility(View.GONE);
+				}
+			}
+		});
+	}
+
+	private void refreshPlayerCarTrackingMode() {
+		// If no AI car connected
+		if(REVRobotFinder.getInstance().getmRevRobotConnectedList().size() == 1) {
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					REVRobot robot = REVPlayer.getInstance().getPlayerRev();
+					if (robot != null)
+						robot.revSetTrackingMode(revRobotTrackingMode.REVTrackingBeacon);
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							REVRobot robot = REVPlayer.getInstance().getPlayerRev();
+							if (robot != null)
+								robot.revGetTrackingMode();
+							handler.postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									REVRobot robot = REVPlayer.getInstance().getPlayerRev();
+									if (robot != null)
+										robot.revGetRGBLed();
+								}
+							}, DELAY_HALF_SECOND);
+						}
+					}, DELAY_HALF_SECOND);
+				}
+			}, DELAY_HALF_SECOND);
+		}
+		// If there is AI car connected
+		else {
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					REVRobot robot = REVPlayer.getInstance().getPlayerRev();
+					if (robot != null)
+						robot.revSetTrackingMode(revRobotTrackingMode.REVTrackingBeacon);
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							REVRobot robot = REVPlayer.getInstance().getPlayerRev();
+							if (robot != null)
+								robot.revGetTrackingMode();
+							handler.postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									REVRobot robot = REVPlayer.getInstance().getPlayerRev();
+									if (robot != null)
+										robot.revGetRGBLed();
+								}
+							}, DELAY_HALF_SECOND);
+						}
+					}, DELAY_HALF_SECOND);
+				}
+			}, DELAY_HALF_SECOND);
+		}
 	}
 
 	//================================================================================
@@ -346,6 +542,7 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 		}
 		if (v == touchArea && driveEnabled) {
 			switch(event.getActionMasked()) {
+				// Show joystick
 				case MotionEvent.ACTION_DOWN:
 				case MotionEvent.ACTION_POINTER_DOWN: {
 					Point pt = new Point();
@@ -389,6 +586,7 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 				case MotionEvent.ACTION_UP:
 				case MotionEvent.ACTION_POINTER_UP:
 				case MotionEvent.ACTION_CANCEL: {
+					// Hide joystick
 					if (this.joystickLeft.IsTouchToTrack(event, event.getPointerId(event.getActionIndex()))){
 						this.joystickLeft.setVisibility(View.INVISIBLE);
 						this.joystickLeft.touchesEnded(event);
@@ -427,6 +625,31 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 
 	}
 
+	@Override
+	public void exitREVConnectAIView() {
+		setViewTouchable(true);
+		// Start battle after one second
+		resumeDriveViewFragment();
+		// Show game page layout
+		if(getActivity() != null) {
+			View gameView = getActivity().findViewById(R.id.view_id_content);
+			if(gameView != null) {
+				gameView.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
+	//================================================================================
+	// RevConnectAICallback
+	//================================================================================
+	@Override
+	public void revConnectDidConnectRev(RevConnectAIFragment sender, List<REVRobot> revList) {
+		for(REVRobot revRobot : revList) {
+			Log.d("Connect", "Drive View Connected REV: " + revRobot.getName());
+			revRobot.setCallbackInterface(DriveViewFragment.this);
+		}
+	}
+
 	class JoystickRunnable implements Runnable {
 		public void run() {
 			do {
@@ -443,7 +666,6 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -460,15 +682,36 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 		getFragmentActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if(!rev.isDead()) {
-					Log.d(getClass().getName(), "Get shot rev: " + rev.getName() + ", sensor = " + rxSensor + ", irCommand = " + irCommand);
-					float remainHealthValue = Player.getInstance().getShot(rev, irCommand, getActivity());
-					tvHealth.setText(getString(R.string.health) + " " + remainHealthValue);
-				} else {
-					tvHealth.setText(getString(R.string.dead));
+				if(rev != null) {
+					if(rev == REVPlayer.getInstance().getPlayerRev()) {
+						// Update player health
+						if(!rev.isDead()) {
+							Log.d(getClass().getName(), "Get shot rev: " + rev.getName() + ", sensor = " + rxSensor + ", irCommand = " + irCommand);
+							float remainHealthValue = Player.getInstance().getShot(rev, irCommand, getActivity());
+							tvHealth.setText(getString(R.string.health) + " " + remainHealthValue);
+						} else {
+							tvHealth.setText(getString(R.string.dead));
+						}
+					} else {
+						// Update AI health
+						tvAiHealth.setVisibility(View.VISIBLE);
+						if(!rev.isDead()) {
+							Log.d(getClass().getName(), "Get shot rev: " + rev.getName() + ", sensor = " + rxSensor + ", irCommand = " + irCommand);
+							float remainHealthValue = Player.getInstance().getShot(rev, irCommand, getActivity());
+							tvAiHealth.setText(getString(R.string.health) + " " + remainHealthValue);
+						} else {
+							tvAiHealth.setText(getString(R.string.dead));
+						}
+					}
 				}
 			}
 		});
+	}
+
+	@Override
+	public void revDeviceReady(REVRobot rev) {
+		// Do this when the REV is connected
+		refreshPlayerCarTrackingMode();
 	}
 
 	@Override
@@ -485,17 +728,94 @@ public class DriveViewFragment extends BaseViewFragment implements OnTouchListen
 		}
 	}
 
+	@Override
+	public void revDidReceiveTrackingMode(final REVRobot rev, byte mode) {
+		if(REVRobotFinder.getInstance().getmRevRobotConnectedList().size() == 1) {
+			if (mode != revRobotTrackingMode.REVTrackingUserControl.getValue()) {
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						rev.revSetTrackingMode(revRobotTrackingMode.REVTrackingUserControl);
+						handler.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								rev.revGetTrackingMode();
+							}
+						}, DELAY_HALF_SECOND);
+					}
+				}, DELAY_HALF_SECOND);
+			}
+		}
+		// If there is AI car connected
+		else {
+			if (mode != revRobotTrackingMode.REVTrackingBeacon.getValue()) {
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						rev.revSetTrackingMode(revRobotTrackingMode.REVTrackingBeacon);
+						handler.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								rev.revGetTrackingMode();
+							}
+						}, DELAY_HALF_SECOND);
+					}
+				}, DELAY_HALF_SECOND);
+			}
+		}
+	}
+
+	//================================================================================
+	// RevAIPlayerFragmentListener callback
+	//================================================================================
+
+	@Override
+	public void backPage() {
+		setViewTouchable(true);
+		resumeDriveViewFragment();
+	}
+	@Override
+	public void selectAIPlayer(REVRobot rev, AIPlayer ai) {
+		AIPlayerManager.getInstance().revAttachAI(rev, ai);
+	}
+	@Override
+	public void selectAIPlayer(SelectAICar aiCar, AIPlayer ai) {
+
+	}
+
+	@Override
+	public void disconnectAICar(REVRobot aiRev) {
+		AIPlayerManager.getInstance().revDetachAI(aiRev);
+		aiRev.setCallbackInterface(this);
+		aiRev.disconnect();
+		setViewTouchable(true);
+		resumeDriveViewFragment();
+	}
+
 	//================================================================================
 	// Broadcast receiver for revive
 	//================================================================================
 
 	private BroadcastReceiver mBroadcast =  new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context mContext, Intent mIntent) {
-			if(mIntent.getAction().equals(BROADCAST_REVIVE)){
-				// Refresh layout for revive
-				tvHealth.setText(getString(R.string.health) + " " + rev.health);
-			}
+		public void onReceive(final Context context, final Intent intent) {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					final String action = intent.getAction();
+					if(action.equals(BROADCAST_REVIVE)){
+						// Refresh layout for revive
+						if(REVPlayer.getInstance().getPlayerRev() != null) {
+							tvHealth.setText(getString(R.string.health) + " " + REVPlayer.getInstance().getPlayerRev().health);
+						}
+						if(AIPlayer.getRev() != null) {
+							tvAiHealth.setText(getString(R.string.health) + " " + AIPlayer.getRev().health);
+							tvAiHealth.setVisibility(View.VISIBLE);
+						} else {
+							tvAiHealth.setVisibility(View.GONE);
+						}
+					}
+				}});
 		}
 	};
 }

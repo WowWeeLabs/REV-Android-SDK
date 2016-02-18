@@ -3,7 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainMenuActivity" >
+    tools:context=".MainActivity" >
+
+    <FrameLayout
+        android:id="@+id/view_id_sub_overlay2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/view_id_sub_overlay3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
     
     <FrameLayout
         android:id="@+id/view_id_content"

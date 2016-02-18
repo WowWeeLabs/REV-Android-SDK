@@ -6,13 +6,18 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+
 import com.wowwee.bluetoothrobotcontrollib.rev.REVCommandValues;
 import com.wowwee.bluetoothrobotcontrollib.rev.REVRobot;
 import com.wowwee.bluetoothrobotcontrollib.rev.REVRobotConstant;
 import com.wowwee.bluetoothrobotcontrollib.rev.util.GunShotData;
 import com.wowwee.revandroidsampleproject.R;
+import com.wowwee.revandroidsampleproject.ai.AIAssistant;
+import com.wowwee.revandroidsampleproject.ai.AIPlayer;
 import com.wowwee.revandroidsampleproject.fragments.DriveViewFragment;
 import com.wowwee.revandroidsampleproject.weapon.WeaponManager;
+import com.wowwee.bluetoothrobotcontrollib.rev.REVRobotConstant.revRobotTrackingMode;
 
 /**
  * Created by yinlau on 28/1/16.
@@ -81,7 +86,6 @@ public class Player {
             flashLed(rev, LED_COLOR_RED);
             // Reset led to blue light
             setLed(rev, LED_COLOR_BLUE);
-
             // Find enemy's gun data
             GunShotData refGunShotData = WeaponManager.getInstance().getGunShotData(irCommand);
             if (refGunShotData != null) {
@@ -93,11 +97,16 @@ public class Player {
                 rev.setHealth(remainHealthValue);
                 health = remainHealthValue;
 
-                if(rev.health == 0) {
+                if(rev.health <= 0) {
                     // Set dead status
                     rev.setIsDead(true);
                     // Popup revive dialog
                     doLose(rev, activity);
+                }
+
+                if(rev == AIPlayer.getRev() && rev.health > 0) {
+                    // AI got shot may change the tracking mode
+                    AIAssistant.getInstance().aiGotShot(remainHealthValue);
                 }
             }
         }
@@ -146,13 +155,34 @@ public class Player {
             Intent intent = new Intent();
             intent.setAction(DriveViewFragment.BROADCAST_REVIVE);
             activity.sendBroadcast(intent);
+            // Start AI car
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Player.getInstance().setAiEnable(true);
+                }
+            }, DELAY_HALF_SECOND);
         }
     }
 
     private void doLose(final REVRobot rev, final FragmentActivity activity) {
+        // Stop AI car
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                Player.getInstance().setAiEnable(false);
+            }
+        }, DELAY_HALF_SECOND);
+        // Show dialog
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String message;
+                if(rev == REVPlayer.getInstance().getPlayerRev()) {
+                    message = activity.getString(R.string.lost_title);
+                } else {
+                    message = activity.getString(R.string.win_title);
+                }
                 // Play sound
                 rev.revPlaySound(REVCommandValues.kRevSoundFile_REV_DAMAGE_DEATH_1_A34);
                 // Set led to red light
@@ -160,7 +190,7 @@ public class Player {
                 // Popup dialog for revive
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setCancelable(false);
-                builder.setTitle(activity.getString(R.string.lost_title));
+                builder.setTitle(message);
                 builder.setPositiveButton(activity.getString(R.string.lost_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -170,6 +200,35 @@ public class Player {
                 builder.show();
             }
         }, DELAY_ONE_SECOND);
+    }
+
+    public void aiShot() {
+        if(AIAssistant.getInstance().isAiGaming() && AIPlayer.getRev() != null && AIPlayer.getRev().health > 0) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // 0 means AI is using Gun A
+                    gunFire(AIPlayer.getRev(), 0);
+                    // AI fire repeatedly
+                    aiShot();
+                }
+            }, DELAY_HALF_SECOND);
+        }
+    }
+
+    public void aiChangeMode(revRobotTrackingMode mode){
+        if(AIPlayer.getRev() != null) {
+            AIPlayer.getRev().revSetTrackingMode(mode);
+        }
+    }
+
+    public void setAiEnable(boolean aiEnable){
+        if (aiEnable) {
+            AIAssistant.getInstance().startAI();
+            aiShot();
+        }else{
+            AIAssistant.getInstance().stopAI();
+        }
     }
 
 }
